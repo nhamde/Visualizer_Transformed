@@ -15,5 +15,5 @@ public:
 	bool operator()(double a, double b) const;
 
 private:
-	Point vectorReader(const QStringList& lineList, std::map<double, int, Transformation::customComparator>& uniqueMap, Triangulation& triangulation);
+	Point vectorReader(const QStringList& lineList, std::map<double, int, OBJReader>& uniqueMap, Triangulation& triangulation);
 };

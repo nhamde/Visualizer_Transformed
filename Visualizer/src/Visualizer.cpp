@@ -124,7 +124,9 @@ void Visualizer::onTranslateClick()
                 exportFileName = QDir(dir).filePath("temp.obj");
                 
                 Transformation::Transformer transformer;
-                outTriangulation = transformer.scaleUniform(inTriangulation, 2.0);
+                outTriangulation = transformer.rotateZ(inTriangulation, 45);
+
+                outTriangulation = transformer.scaleUniform(outTriangulation, 1.5);
 
                 ObjWriter writer;
                 writer.Write(exportFileName.toStdString(), outTriangulation);
@@ -132,11 +134,11 @@ void Visualizer::onTranslateClick()
                 /*qInfo() << outTriangulation.uniqueNumbers.size();
                 qInfo() << inTriangulation.uniqueNumbers.size();*/
 
-                /*for (int i = 0; i < inTriangulation.uniqueNumbers.size(); i++)
+                for (int i = 0; i < inTriangulation.uniqueNumbers.size(); i++)
                     qInfo() << inTriangulation.uniqueNumbers[i] << endl;
                 qInfo() << "Now next" << endl;
                 for (int i = 0; i < outTriangulation.uniqueNumbers.size(); i++)
-                    qInfo() << outTriangulation.uniqueNumbers[i] << endl;*/
+                    qInfo() << outTriangulation.uniqueNumbers[i] << endl;
 
                 // reload file to check and load in output renderer
                 OBJReader reader;

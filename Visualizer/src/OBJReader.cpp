@@ -25,7 +25,7 @@ bool OBJReader::operator()(double a, double b) const
 {
     return fabs(a - b) > TOLERANCE ? a < b : false;
 }
-Point OBJReader::vectorReader(const QStringList& lineList, std::map<double, int, Transformation::customComparator>& uniqueMap, Triangulation& triangulation)
+Point OBJReader::vectorReader(const QStringList& lineList, std::map<double, int, OBJReader>& uniqueMap, Triangulation& triangulation)
 {
     double xyz[3];
     xyz[0] = lineList.value(1).toDouble();
@@ -55,7 +55,7 @@ void OBJReader::read(const std::string& fileName, Triangulation& triangulation)
     triangulation.Triangles.clear();
     triangulation.uniqueNumbers.clear();
 
-    std::map<double, int, customComparator> uniqueMap;
+    std::map<double, int, OBJReader> uniqueMap;
     std::string fLetter;
     std::string str1;
     std::string str2;

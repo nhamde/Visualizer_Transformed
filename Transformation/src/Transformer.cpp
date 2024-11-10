@@ -14,7 +14,12 @@ Transformer::Transformer()
 Transformer::~Transformer()
 {}
 
-Point Transformer::ptTriangulator(double _x, double _y, double _z, map<double, int, customComparator>& uniqueMap, vector<double>& newUV)
+bool Transformer::operator()(double a, double b) const
+{
+	return fabs(a - b) > TOLERANCE ? a < b : false;
+}
+
+Point Transformer::ptTriangulator(double _x, double _y, double _z, map<double, int, Transformer>& uniqueMap, vector<double>& uniqueValues)
 {
 	double array[3] = { _x, _y, _z };
 	int pt[3];
@@ -23,9 +28,9 @@ Point Transformer::ptTriangulator(double _x, double _y, double _z, map<double, i
 		auto pair = uniqueMap.find(array[i]);
 		if (pair == uniqueMap.end())
 		{
-			newUV.push_back(array[i]);
-			uniqueMap[array[i]] = newUV.size() - 1;
-			pt[i] = newUV.size() - 1;
+			uniqueValues.push_back(array[i]);
+			uniqueMap[array[i]] = uniqueValues.size() - 1;
+			pt[i] = uniqueValues.size() - 1;
 		}
 		else
 		{
@@ -46,7 +51,7 @@ Triangulation Transformer::scaleUniform(const Triangulation& tri, double scaleFa
 	};
 
 	Triangulation output;
-	map<double, int, customComparator> uniqueMap;
+	map<double, int, Transformer> uniqueMap;
 
 	for (auto triangle : tri.Triangles)
 	{
@@ -59,7 +64,10 @@ Triangulation Transformer::scaleUniform(const Triangulation& tri, double scaleFa
 			Point point = ptTriangulator(scaledPt[0], scaledPt[1], scaledPt[2], uniqueMap, output.uniqueNumbers);
 			newTrPts.push_back(point);
 		}
-		Point newNormal = ptTriangulator(triangle.Normal().X(), triangle.Normal().Y(), triangle.Normal().Z(), uniqueMap, output.uniqueNumbers);
+		int normalIdX = triangle.Normal().X();
+		int normalIdY = triangle.Normal().Y();
+		int normalIdZ = triangle.Normal().Z();
+		Point newNormal = ptTriangulator(tri.uniqueNumbers[normalIdX], tri.uniqueNumbers[normalIdY], tri.uniqueNumbers[normalIdZ], uniqueMap, output.uniqueNumbers);
 		output.Triangles.push_back(Triangle(newNormal, newTrPts[0], newTrPts[1], newTrPts[2]));
 	}
 	return output;
@@ -76,7 +84,7 @@ Triangulation Transformer::scaleNonUniform(const Triangulation& tri, double xSca
 	};
 
 	Triangulation output;
-	map<double, int, customComparator> uniqueMap;
+	map<double, int, Transformer> uniqueMap;
 
 	for (auto triangle : tri.Triangles)
 	{
@@ -89,7 +97,10 @@ Triangulation Transformer::scaleNonUniform(const Triangulation& tri, double xSca
 			Point point = ptTriangulator(scaledPt[0], scaledPt[1], scaledPt[2], uniqueMap, output.uniqueNumbers);
 			newTrPts.push_back(point);
 		}
-		Point newNormal = ptTriangulator(triangle.Normal().X(), triangle.Normal().Y(), triangle.Normal().Z(), uniqueMap, output.uniqueNumbers);
+		int normalIdX = triangle.Normal().X();
+		int normalIdY = triangle.Normal().Y();
+		int normalIdZ = triangle.Normal().Z();
+		Point newNormal = ptTriangulator(tri.uniqueNumbers[normalIdX], tri.uniqueNumbers[normalIdY], tri.uniqueNumbers[normalIdZ], uniqueMap, output.uniqueNumbers);
 		output.Triangles.push_back(Triangle(newNormal, newTrPts[0], newTrPts[1], newTrPts[2]));
 	}
 	return output;
@@ -106,21 +117,24 @@ Triangulation Transformer::rotateZ(const Triangulation& tri, double theta)
 		{0.0,0.0,0.0,1.0}
 	};
 	Triangulation output;
-	map<double, int, customComparator> uniqueMap;
+	map<double, int, Transformer> uniqueMap;
 
 	for (auto triangle : tri.Triangles)
 	{
 		vector<Point> newTrPts;
 		newTrPts.reserve(3);
-		Point ptArray[4] = { triangle.Normal(), triangle.P1(), triangle.P2(), triangle.P3() };
-		for (int p = 1; p < 4; p++)
+		Point ptArray[3] = {triangle.P1(), triangle.P2(), triangle.P3() };
+		for (int p = 0; p < 3; p++)
 		{
 			vector<double> scaledPt = rotationMatrix.multiply(tri.uniqueNumbers[ptArray[p].X()], tri.uniqueNumbers[ptArray[p].Y()], tri.uniqueNumbers[ptArray[p].Z()]);
 			Point point = ptTriangulator(scaledPt[0], scaledPt[1], scaledPt[2], uniqueMap, output.uniqueNumbers);
 			newTrPts.push_back(point);
 		}
-		auto normalRotated = rotationMatrix.multiply(triangle.Normal().X(), triangle.Normal().Y(), triangle.Normal().Z());
-		Point newNormal = Point(normalRotated[0], normalRotated[1], normalRotated[2]);
+		int normalIdX = triangle.Normal().X();
+		int normalIdY = triangle.Normal().Y();
+		int normalIdZ = triangle.Normal().Z();
+		auto normalRotated = rotationMatrix.multiply(tri.uniqueNumbers[normalIdX], tri.uniqueNumbers[normalIdY], tri.uniqueNumbers[normalIdZ]);
+		Point newNormal = ptTriangulator(normalRotated[0], normalRotated[1], normalRotated[2], uniqueMap, output.uniqueNumbers);
 		output.Triangles.push_back(Triangle(newNormal, newTrPts[0], newTrPts[1], newTrPts[2]));
 	}
 	return output;
