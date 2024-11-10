@@ -7,9 +7,9 @@
 #include "STLWriter.h"
 #include "DataWriter.h"
 #include <QDebug>
-#include "Transformation.h"
+#include "Transformer.h"
 using namespace Geometry;
-using namespace transformya;
+using namespace Transformation;
 
 Visualizer::Visualizer(QWidget* parent)
     : QMainWindow(parent)
@@ -54,12 +54,12 @@ void Visualizer::readFile(const QString& inFileName)
     if (inFileName.endsWith(".stl", Qt::CaseInsensitive))
     {
         STLReader reader;
-        reader.read(inFileName.toStdString(), triangulation);
+        reader.read(inFileName.toStdString(), inTriangulation);
     }
     else if (inFileName.endsWith(".obj", Qt::CaseInsensitive))
     {
         OBJReader reader;
-        reader.read(inFileName.toStdString(), triangulation);
+        reader.read(inFileName.toStdString(), inTriangulation);
     }
 }
 
@@ -71,14 +71,14 @@ void Visualizer::writeFile()
             tr("Save File"), "", tr("files (*.obj)"));
         qInfo() << fileName << endl;
         ObjWriter writer;
-        writer.Write(fileName.toStdString(), triangulation);
+        writer.Write(fileName.toStdString(), outTriangulation);
     }
     else if (inputFilePath.endsWith(".obj", Qt::CaseInsensitive))
     {
         QString fileName = QFileDialog::getSaveFileName(this,
             tr("Save File"), "", tr("files (*.stl)"));
         STLWriter writer;
-        writer.Write(fileName.toStdString(), triangulation);
+        writer.Write(fileName.toStdString(), outTriangulation);
     }
 }
 
@@ -91,15 +91,8 @@ void  Visualizer::onLoadFileClick()
     {
         inputFilePath = fileName;
         readFile(inputFilePath);
-        OpenGlWidget::Data data = convertTrianglulationToGraphicsObject(triangulation);
+        OpenGlWidget::Data data = convertTrianglulationToGraphicsObject(inTriangulation);
         openglWidgetInput->setData(data);
-        if (secondTime == true)
-        {
-            data.vertices.clear();
-            data.normals.clear();
-            openglWidgetInput->update();
-        }
-        secondTime = true;
     }
     else
     {
@@ -129,22 +122,25 @@ void Visualizer::onTranslateClick()
             if (inputFilePath.endsWith(".stl", Qt::CaseInsensitive))
             {
                 exportFileName = QDir(dir).filePath("temp.obj");
+                
+                Transformation::Transformer transformer;
+                outTriangulation = transformer.scaleUniform(inTriangulation, 2.0);
+
                 ObjWriter writer;
-                writer.Write(exportFileName.toStdString(), triangulation);
+                writer.Write(exportFileName.toStdString(), outTriangulation);
 
-                transformya::Transformation transformer;
-                Triangulation tr = transformer.scale(triangulation, 5.0);
-                /*qInfo() << tr.UniqueNumbers.size();
-                qInfo() << triangulation.UniqueNumbers.size();*/
+                /*qInfo() << outTriangulation.uniqueNumbers.size();
+                qInfo() << inTriangulation.uniqueNumbers.size();*/
 
-                /*for (int i = 0; i < triangulation.UniqueNumbers.size(); i++)
-                    qInfo() << triangulation.UniqueNumbers[i] << endl;
+                /*for (int i = 0; i < inTriangulation.uniqueNumbers.size(); i++)
+                    qInfo() << inTriangulation.uniqueNumbers[i] << endl;
                 qInfo() << "Now next" << endl;
-                for (int i = 0; i < tr.UniqueNumbers.size(); i++)
-                    qInfo() << tr.UniqueNumbers[i] << endl;*/
+                for (int i = 0; i < outTriangulation.uniqueNumbers.size(); i++)
+                    qInfo() << outTriangulation.uniqueNumbers[i] << endl;*/
+
                 // reload file to check and load in output renderer
                 OBJReader reader;
-                reader.read(exportFileName.toStdString(), tr);
+                reader.read(exportFileName.toStdString(), outTriangulation);
 
                 QFile::remove(exportFileName);
             }
@@ -153,16 +149,16 @@ void Visualizer::onTranslateClick()
             {
                 exportFileName = QDir(dir).filePath("temp.stl");
                 STLWriter writer;
-                writer.Write(exportFileName.toStdString(), triangulation);
+                writer.Write(exportFileName.toStdString(), inTriangulation);
 
                 // reload file to check and load in output renderer
                 STLReader reader;
-                reader.read(exportFileName.toStdString(), triangulation);
+                reader.read(exportFileName.toStdString(), outTriangulation);
 
                 QFile::remove(exportFileName);
             }
 
-            OpenGlWidget::Data data = convertTrianglulationToGraphicsObject(triangulation);
+            OpenGlWidget::Data data = convertTrianglulationToGraphicsObject(outTriangulation);
             openglWidgetOutput->setData(data);
         }
         else
@@ -199,18 +195,18 @@ OpenGlWidget::Data Visualizer::convertTrianglulationToGraphicsObject(const Trian
     {
         for each (Point point in triangle.Points())
         {
-            data.vertices.push_back(triangulation.UniqueNumbers[point.X()]);
-            data.vertices.push_back(triangulation.UniqueNumbers[point.Y()]);
-            data.vertices.push_back(triangulation.UniqueNumbers[point.Z()]);
+            data.vertices.push_back(triangulation.uniqueNumbers[point.X()]);
+            data.vertices.push_back(triangulation.uniqueNumbers[point.Y()]);
+            data.vertices.push_back(triangulation.uniqueNumbers[point.Z()]);
         }
 
         Point normal = triangle.Normal();
 
         for (size_t i = 0; i < 3; i++)
         {
-            data.normals.push_back(triangulation.UniqueNumbers[normal.X()]);
-            data.normals.push_back(triangulation.UniqueNumbers[normal.Y()]);
-            data.normals.push_back(triangulation.UniqueNumbers[normal.Z()]);
+            data.normals.push_back(triangulation.uniqueNumbers[normal.X()]);
+            data.normals.push_back(triangulation.uniqueNumbers[normal.Y()]);
+            data.normals.push_back(triangulation.uniqueNumbers[normal.Z()]);
         }
     }
     return data;

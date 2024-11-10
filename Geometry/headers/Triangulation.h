@@ -9,7 +9,7 @@ namespace Geometry
         Triangulation();
         ~Triangulation();
 
-        std::vector<double> UniqueNumbers;
+        std::vector<double> uniqueNumbers;
         std::vector<Triangle> Triangles;
     };
 }

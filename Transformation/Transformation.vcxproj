@@ -114,6 +114,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)headers;$(SolutionDir)Geometry\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(SolutionDir)Geometry\headers;$(ProjectDir)headers;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -143,10 +144,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="headers\Transformation.h" />
+    <ClInclude Include="headers\Transformer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Transformation.cpp" />
+    <ClCompile Include="src\Transformer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

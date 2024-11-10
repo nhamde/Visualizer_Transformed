@@ -2,6 +2,7 @@
 #include <QStringList>
 #include "Triangulation.h"
 #include "Reader.h"
+#include "Transformer.h"
 using namespace Geometry;
 
 class OBJReader : public Reader
@@ -14,5 +15,5 @@ public:
 	bool operator()(double a, double b) const;
 
 private:
-	Point vectorReader(const QStringList& lineList, std::map<double, int, OBJReader>& uniqueMap, Triangulation& triangulation);
+	Point vectorReader(const QStringList& lineList, std::map<double, int, Transformation::customComparator>& uniqueMap, Triangulation& triangulation);
 };

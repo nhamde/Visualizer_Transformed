@@ -30,7 +30,8 @@ private:
     void writeFile();
 
 private:
-    Triangulation triangulation;  // Single triangulation data structure used for data transfer
+    Triangulation inTriangulation; 
+    Triangulation outTriangulation; 
 
     QPushButton* loadFile;
     QPushButton* translate;
@@ -45,6 +46,4 @@ private:
 
     QString inputFilePath;
     QMessageBox msgBox;
-
-    bool secondTime = false;
 };

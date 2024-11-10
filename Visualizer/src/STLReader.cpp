@@ -31,7 +31,7 @@ void STLReader::read(const std::string& fileName, Triangulation& triangulation)
     double xyz[3]; // To store 3 coordinates as double
     std::vector<int> pointIndices; // To store indices of unique double values
     triangulation.Triangles.clear();
-    triangulation.UniqueNumbers.clear();
+    triangulation.uniqueNumbers.clear();
 
     std::ifstream infile(fileName);
     if (infile.is_open())
@@ -53,9 +53,9 @@ void STLReader::read(const std::string& fileName, Triangulation& triangulation)
                         auto pair = uniqueValueMap.find(xyz[i]);
                         if (pair == uniqueValueMap.end())
                         {
-                            triangulation.UniqueNumbers.push_back(xyz[i]);
-                            uniqueValueMap[xyz[i]] = triangulation.UniqueNumbers.size() - 1;
-                            pointIndices.push_back(triangulation.UniqueNumbers.size() - 1);
+                            triangulation.uniqueNumbers.push_back(xyz[i]);
+                            uniqueValueMap[xyz[i]] = triangulation.uniqueNumbers.size() - 1;
+                            pointIndices.push_back(triangulation.uniqueNumbers.size() - 1);
                         }
                         else
                         {

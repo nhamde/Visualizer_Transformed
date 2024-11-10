@@ -149,7 +149,7 @@
     <ClInclude Include="headers\Triangulation.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="src\Geometry.cpp" />
     <ClCompile Include="src\Matrix4x4.cpp" />
     <ClCompile Include="src\Point.cpp" />
     <ClCompile Include="src\Triangle.cpp" />

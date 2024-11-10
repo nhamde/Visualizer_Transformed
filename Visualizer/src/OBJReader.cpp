@@ -13,6 +13,7 @@
 #include <map>
 #define TOLERANCE 0.0000001
 using namespace Geometry;
+using namespace Transformation;
 
 OBJReader::OBJReader()
 {
@@ -24,7 +25,7 @@ bool OBJReader::operator()(double a, double b) const
 {
     return fabs(a - b) > TOLERANCE ? a < b : false;
 }
-Point OBJReader::vectorReader(const QStringList& lineList, std::map<double, int, OBJReader>& uniqueMap, Triangulation& triangulation)
+Point OBJReader::vectorReader(const QStringList& lineList, std::map<double, int, Transformation::customComparator>& uniqueMap, Triangulation& triangulation)
 {
     double xyz[3];
     xyz[0] = lineList.value(1).toDouble();
@@ -38,9 +39,9 @@ Point OBJReader::vectorReader(const QStringList& lineList, std::map<double, int,
         auto pair = uniqueMap.find(xyz[i]);
         if (pair == uniqueMap.end())
         {
-            triangulation.UniqueNumbers.push_back(xyz[i]);
-            uniqueMap[xyz[i]] = triangulation.UniqueNumbers.size() - 1;
-            pt[i] = triangulation.UniqueNumbers.size() - 1;
+            triangulation.uniqueNumbers.push_back(xyz[i]);
+            uniqueMap[xyz[i]] = triangulation.uniqueNumbers.size() - 1;
+            pt[i] = triangulation.uniqueNumbers.size() - 1;
         }
         else
         {
@@ -52,9 +53,9 @@ Point OBJReader::vectorReader(const QStringList& lineList, std::map<double, int,
 void OBJReader::read(const std::string& fileName, Triangulation& triangulation)
 {
     triangulation.Triangles.clear();
-    triangulation.UniqueNumbers.clear();
+    triangulation.uniqueNumbers.clear();
 
-    std::map<double, int, OBJReader> uniqueMap;
+    std::map<double, int, customComparator> uniqueMap;
     std::string fLetter;
     std::string str1;
     std::string str2;
